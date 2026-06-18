@@ -25,8 +25,8 @@
         <span>Global<span class="bold">Atlas</span></span>
       </div>
       
-      <!-- Search Bar (Visible only when logged in) -->
-      <div class="search-wrapper hidden" id="nav-search-wrapper">
+      <!-- Search Bar -->
+      <div class="search-wrapper" id="nav-search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input type="text" id="search-input" placeholder="Search countries by name...">
       </div>
@@ -41,6 +41,11 @@
             <i class="fa-solid fa-right-from-bracket"></i> Logout
           </button>
         </div>
+        <div id="guest-actions" class="guest-actions">
+          <button id="open-auth-btn" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In / Register
+          </button>
+        </div>
       </div>
     </div>
   </nav>
@@ -48,83 +53,91 @@
   <!-- Main Workspace Container -->
   <main class="main-container">
     
-    <!-- AUTHENTICATION PANELS -->
-    <section id="auth-section" class="auth-section">
-      <div class="auth-card-container">
-        
-        <!-- Login Form Card -->
-        <div id="login-card" class="auth-card active-card">
-          <h2>Welcome Back</h2>
-          <p class="subtitle">Log in to manage country directory database</p>
-          
-          <form id="login-form">
-            <div class="form-group">
-              <label for="login-email">Email Address</label>
-              <div class="input-wrapper">
-                <i class="fa-regular fa-envelope input-icon"></i>
-                <input type="email" id="login-email" required placeholder="name@company.com">
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="login-password">Password</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-lock input-icon"></i>
-                <input type="password" id="login-password" required placeholder="••••••••">
-              </div>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-block">
-              Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            </button>
-          </form>
-          
-          <p class="auth-switch">Don't have an account? <a href="#" id="to-register">Register here</a></p>
-        </div>
-
-        <!-- Register Form Card -->
-        <div id="register-card" class="auth-card">
-          <h2>Create Account</h2>
-          <p class="subtitle">Join and start organizing country statistics</p>
-          
-          <form id="register-form">
-            <div class="form-group">
-              <label for="register-name">Full Name</label>
-              <div class="input-wrapper">
-                <i class="fa-regular fa-user input-icon"></i>
-                <input type="text" id="register-name" required placeholder="John Doe">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="register-email">Email Address</label>
-              <div class="input-wrapper">
-                <i class="fa-regular fa-envelope input-icon"></i>
-                <input type="email" id="register-email" required placeholder="name@company.com">
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="register-password">Password</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-lock input-icon"></i>
-                <input type="password" id="register-password" required placeholder="Min 6 characters">
-              </div>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-block">
-              Register Account <i class="fa-solid fa-user-plus"></i>
-            </button>
-          </form>
-          
-          <p class="auth-switch">Already registered? <a href="#" id="to-login">Sign in here</a></p>
-        </div>
-
+  <!-- AUTHENTICATION MODAL -->
+  <div id="auth-modal" class="modal">
+    <div class="modal-content auth-modal-content">
+      <div class="modal-header">
+        <h3 id="auth-modal-title">Sign In / Register</h3>
+        <span class="close-btn" id="close-auth-modal-btn">&times;</span>
       </div>
-    </section>
+      <div style="padding: 28px;">
+        <div class="auth-card-container" style="max-width: none;">
+          
+          <!-- Login Form Card -->
+          <div id="login-card" class="auth-card active-card" style="border: none; padding: 0; box-shadow: none; background: transparent;">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Log in to manage country directory database</p>
+            
+            <form id="login-form" style="padding: 0;">
+              <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <div class="input-wrapper">
+                  <i class="fa-regular fa-envelope input-icon"></i>
+                  <input type="email" id="login-email" required placeholder="name@company.com">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                  <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-block">
+                Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              </button>
+            </form>
+            
+            <p class="auth-switch">Don't have an account? <a href="#" id="to-register">Register here</a></p>
+          </div>
+
+          <!-- Register Form Card -->
+          <div id="register-card" class="auth-card" style="border: none; padding: 0; box-shadow: none; background: transparent;">
+            <h2>Create Account</h2>
+            <p class="subtitle">Join and start organizing country statistics</p>
+            
+            <form id="register-form" style="padding: 0;">
+              <div class="form-group">
+                <label for="register-name">Full Name</label>
+                <div class="input-wrapper">
+                  <i class="fa-regular fa-user input-icon"></i>
+                  <input type="text" id="register-name" required placeholder="John Doe">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="register-email">Email Address</label>
+                <div class="input-wrapper">
+                  <i class="fa-regular fa-envelope input-icon"></i>
+                  <input type="email" id="register-email" required placeholder="name@company.com">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="register-password">Password</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                  <input type="password" id="register-password" required placeholder="Min 6 characters">
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-block">
+                Register Account <i class="fa-solid fa-user-plus"></i>
+              </button>
+            </form>
+            
+            <p class="auth-switch">Already registered? <a href="#" id="to-login">Sign in here</a></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- DASHBOARD PANEL -->
-    <section id="dashboard-section" class="dashboard-section hidden">
+    <section id="dashboard-section" class="dashboard-section">
       <div class="dashboard-header">
         <div class="stats">
           <h1>Country Database</h1>

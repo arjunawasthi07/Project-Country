@@ -7,12 +7,13 @@ let currentUser = JSON.parse(localStorage.getItem('user')) || null;
 let currentSearch = '';
 
 // DOM Elements
-const authSection = document.getElementById('auth-section');
+const authModal = document.getElementById('auth-modal');
 const dashboardSection = document.getElementById('dashboard-section');
 const loginCard = document.getElementById('login-card');
 const registerCard = document.getElementById('register-card');
 const navSearchWrapper = document.getElementById('nav-search-wrapper');
 const userProfile = document.getElementById('user-profile');
+const guestActions = document.getElementById('guest-actions');
 const userNameDisplay = document.getElementById('user-name-display');
 const userAvatarInitial = document.getElementById('user-avatar-initial');
 
@@ -34,6 +35,8 @@ const deleteCountryNameSpan = document.getElementById('delete-country-name');
 
 // Buttons
 const logoutBtn = document.getElementById('logout-btn');
+const openAuthBtn = document.getElementById('open-auth-btn');
+const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
 const openAddModalBtn = document.getElementById('open-add-modal-btn');
 const emptyAddBtn = document.getElementById('empty-add-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
@@ -69,32 +72,32 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuth() {
   if (token && currentUser) {
     // Logged in state
-    authSection.classList.add('hidden');
-    dashboardSection.classList.remove('hidden');
-    navSearchWrapper.classList.remove('hidden');
     userProfile.classList.remove('hidden');
+    guestActions.classList.add('hidden');
+    openAddModalBtn.classList.remove('hidden');
     
     // User display
     userNameDisplay.innerText = currentUser.name;
     userAvatarInitial.innerText = currentUser.name.charAt(0).toUpperCase();
     
-    // Fetch countries
-    fetchCountries();
+    // Hide auth modal if open
+    authModal.classList.remove('active-modal');
   } else {
-    // Logged out state
+    // Logged out / Guest state
     token = null;
     currentUser = null;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
-    authSection.classList.remove('hidden');
-    dashboardSection.classList.add('hidden');
-    navSearchWrapper.classList.add('hidden');
     userProfile.classList.add('hidden');
+    guestActions.classList.remove('hidden');
+    openAddModalBtn.classList.add('hidden');
     
-    // Switch to login card
     showLoginCard();
   }
+
+  // Fetch countries (always visible to everyone)
+  fetchCountries();
 }
 
 // ==========================================
@@ -123,11 +126,20 @@ function renderCountries(countries) {
   if (countries.length === 0) {
     countriesGrid.classList.add('hidden');
     emptyState.classList.remove('hidden');
+    
+    // Customize empty state button based on auth state
+    if (token && currentUser) {
+      emptyAddBtn.classList.remove('hidden');
+    } else {
+      emptyAddBtn.classList.add('hidden');
+    }
     return;
   }
 
   emptyState.classList.add('hidden');
   countriesGrid.classList.remove('hidden');
+
+  const isAuthenticated = !!(token && currentUser);
 
   countries.forEach(country => {
     const card = document.createElement('div');
@@ -147,33 +159,37 @@ function renderCountries(countries) {
           <p><i class="fa-solid fa-users"></i> <strong>Population:</strong> ${formattedPopulation}</p>
         </div>
       </div>
-      <div class="card-actions">
-        <button class="btn btn-secondary btn-sm edit-country-btn" data-id="${country._id}">
-          <i class="fa-solid fa-pen-to-square"></i> Edit
-        </button>
-        <button class="btn btn-danger btn-sm delete-country-btn" data-id="${country._id}" data-name="${escapeHTML(country.countryName)}">
-          <i class="fa-solid fa-trash"></i> Delete
-        </button>
-      </div>
+      ${isAuthenticated ? `
+        <div class="card-actions">
+          <button class="btn btn-secondary btn-sm edit-country-btn" data-id="${country._id}">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+          </button>
+          <button class="btn btn-danger btn-sm delete-country-btn" data-id="${country._id}" data-name="${escapeHTML(country.countryName)}">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      ` : ''}
     `;
 
     countriesGrid.appendChild(card);
   });
 
-  // Bind Actions
-  document.querySelectorAll('.edit-country-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      openEditModal(e.currentTarget.getAttribute('data-id'));
+  if (isAuthenticated) {
+    // Bind Actions
+    document.querySelectorAll('.edit-country-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        openEditModal(e.currentTarget.getAttribute('data-id'));
+      });
     });
-  });
 
-  document.querySelectorAll('.delete-country-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      const name = e.currentTarget.getAttribute('data-name');
-      openDeleteModal(id, name);
+    document.querySelectorAll('.delete-country-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const name = e.currentTarget.getAttribute('data-name');
+        openDeleteModal(id, name);
+      });
     });
-  });
+  }
 }
 
 // User Registration
@@ -203,9 +219,9 @@ async function handleRegister(e) {
       throw new Error(data.message || 'Registration failed');
     }
 
-    showToast('Success', 'Registration completed. You can now login!', 'success');
+    showToast('Success', 'Registration completed. Logging in...', 'success');
     
-    // Automatically perform login login
+    // Automatically perform login
     await loginUserFlow(email, password);
   } catch (error) {
     showToast('Registration Error', error.message, 'error');
@@ -268,7 +284,6 @@ async function handleSaveCountry(e) {
     return;
   }
 
-  // Use FormData for file upload support
   const formData = new FormData();
   formData.append('countryName', name);
   formData.append('capital', capital);
@@ -448,7 +463,17 @@ function closeDeleteModal() {
 // NAVIGATION & EVENT LISTENERS
 // ==========================================
 function setupEventListeners() {
-  // Toggle forms
+  // Open Auth modal
+  openAuthBtn.addEventListener('click', () => {
+    authModal.classList.add('active-modal');
+  });
+
+  // Close Auth modal
+  closeAuthModalBtn.addEventListener('click', () => {
+    authModal.classList.remove('active-modal');
+  });
+
+  // Toggle forms inside Auth Modal
   document.getElementById('to-register').addEventListener('click', (e) => {
     e.preventDefault();
     showRegisterCard();
@@ -494,17 +519,20 @@ function setupEventListeners() {
   window.addEventListener('click', (e) => {
     if (e.target === countryModal) closeCountryModal();
     if (e.target === deleteModal) closeDeleteModal();
+    if (e.target === authModal) authModal.classList.remove('active-modal');
   });
 }
 
 function showLoginCard() {
   loginCard.classList.add('active-card');
   registerCard.classList.remove('active-card');
+  document.getElementById('auth-modal-title').innerText = 'Sign In';
 }
 
 function showRegisterCard() {
   loginCard.classList.remove('active-card');
   registerCard.classList.add('active-card');
+  document.getElementById('auth-modal-title').innerText = 'Register';
 }
 
 // ==========================================
