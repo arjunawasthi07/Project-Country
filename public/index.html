@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlobalAtlas - Country Information Management System</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Main Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fa-solid fa-earth-americas text-gradient"></i>
+        <span>Global<span class="bold">Atlas</span></span>
+      </div>
+      
+      <!-- Search Bar (Visible only when logged in) -->
+      <div class="search-wrapper hidden" id="nav-search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="search-input" placeholder="Search countries by name...">
+      </div>
+
+      <div class="nav-actions">
+        <div id="user-profile" class="user-profile hidden">
+          <div class="avatar">
+            <span id="user-avatar-initial">U</span>
+          </div>
+          <span id="user-name-display" class="user-name">Guest</span>
+          <button id="logout-btn" class="btn btn-secondary btn-sm">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Workspace Container -->
+  <main class="main-container">
+    
+    <!-- AUTHENTICATION PANELS -->
+    <section id="auth-section" class="auth-section">
+      <div class="auth-card-container">
+        
+        <!-- Login Form Card -->
+        <div id="login-card" class="auth-card active-card">
+          <h2>Welcome Back</h2>
+          <p class="subtitle">Log in to manage country directory database</p>
+          
+          <form id="login-form">
+            <div class="form-group">
+              <label for="login-email">Email Address</label>
+              <div class="input-wrapper">
+                <i class="fa-regular fa-envelope input-icon"></i>
+                <input type="email" id="login-email" required placeholder="name@company.com">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="login-password" required placeholder="••••••••">
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+              Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+          </form>
+          
+          <p class="auth-switch">Don't have an account? <a href="#" id="to-register">Register here</a></p>
+        </div>
+
+        <!-- Register Form Card -->
+        <div id="register-card" class="auth-card">
+          <h2>Create Account</h2>
+          <p class="subtitle">Join and start organizing country statistics</p>
+          
+          <form id="register-form">
+            <div class="form-group">
+              <label for="register-name">Full Name</label>
+              <div class="input-wrapper">
+                <i class="fa-regular fa-user input-icon"></i>
+                <input type="text" id="register-name" required placeholder="John Doe">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="register-email">Email Address</label>
+              <div class="input-wrapper">
+                <i class="fa-regular fa-envelope input-icon"></i>
+                <input type="email" id="register-email" required placeholder="name@company.com">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="register-password">Password</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="register-password" required placeholder="Min 6 characters">
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+              Register Account <i class="fa-solid fa-user-plus"></i>
+            </button>
+          </form>
+          
+          <p class="auth-switch">Already registered? <a href="#" id="to-login">Sign in here</a></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- DASHBOARD PANEL -->
+    <section id="dashboard-section" class="dashboard-section hidden">
+      <div class="dashboard-header">
+        <div class="stats">
+          <h1>Country Database</h1>
+          <span class="count-badge"><span id="country-count">0</span> countries listed</span>
+        </div>
+        <button id="open-add-modal-btn" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Add New Country
+        </button>
+      </div>
+
+      <!-- Country Cards Grid -->
+      <div id="countries-grid" class="countries-grid">
+        <!-- Cards loaded dynamically -->
+      </div>
+
+      <!-- Empty/No Results View -->
+      <div id="empty-state" class="empty-state hidden">
+        <i class="fa-regular fa-folder-open empty-icon"></i>
+        <h3>No countries found</h3>
+        <p>Start by adding a country to the catalog or check your search filter.</p>
+        <button id="empty-add-btn" class="btn btn-secondary">
+          <i class="fa-solid fa-plus"></i> Add First Country
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- COUNTRY FORM MODAL (ADD / EDIT) -->
+  <div id="country-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Add Country Details</h3>
+        <span class="close-btn" id="close-modal-btn">&times;</span>
+      </div>
+      <form id="country-form" enctype="multipart/form-data">
+        <input type="hidden" id="country-id">
+        
+        <div class="form-group">
+          <label for="country-name">Country Name</label>
+          <input type="text" id="country-name" required placeholder="e.g. Germany">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country-capital">Capital City</label>
+            <input type="text" id="country-capital" required placeholder="e.g. Berlin">
+          </div>
+          <div class="form-group">
+            <label for="country-population">Population</label>
+            <input type="number" id="country-population" required min="1" placeholder="e.g. 83000000">
+          </div>
+        </div>
+        
+        <!-- Drag & Drop Upload Zone -->
+        <div class="form-group">
+          <label>Country Flag Image</label>
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" id="country-flag" name="flag" accept="image/*" class="file-input">
+            <div class="upload-prompt" id="upload-prompt">
+              <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+              <p class="upload-text">Drag & drop flag image here or <span>browse files</span></p>
+              <p class="upload-limit">Formats: PNG, JPG, JPEG, SVG (Max 5MB)</p>
+            </div>
+            <div class="preview-container hidden" id="preview-container">
+              <img id="flag-preview" class="flag-preview" src="" alt="Flag Preview">
+              <button type="button" id="remove-preview-btn" class="remove-preview-btn">
+                <i class="fa-solid fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancel-modal-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="save-country-btn" class="btn btn-primary">
+            Save Country <i class="fa-solid fa-floppy-disk"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE MODAL -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content delete-modal-content">
+      <div class="delete-icon-wrapper">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3>Are you sure?</h3>
+      <p>This action will permanently delete <strong id="delete-country-name"></strong> from the database. This cannot be undone.</p>
+      <div class="modal-footer delete-footer">
+        <button id="cancel-delete-btn" class="btn btn-secondary">No, Cancel</button>
+        <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete Country</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom JS Application Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>
